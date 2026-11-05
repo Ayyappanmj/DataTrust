@@ -1,0 +1,41 @@
+name: ci
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: datatrust
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: datatrust
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U datatrust" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      DATATRUST_TEST_PG_HOST: localhost
+      DATATRUST_TEST_PG_USER: datatrust
+      DATATRUST_TEST_PG_PASSWORD: ci-only-password
+      DATATRUST_TEST_PG_DB: datatrust
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11", cache: pip }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Lint (ruff)
+        run: ruff check .
+      - name: Validate configuration
+        run: python -m src.cli validate-config
+      - name: Unit, quality, incremental tests
+        run: pytest tests/unit tests/quality tests/incremental -q
+      - name: Integration tests (Spark, DuckDB, dbt, PostgreSQL, dashboard)
+        run: pytest tests/integration tests/recovery -q

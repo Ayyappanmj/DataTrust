@@ -1,0 +1,23 @@
+name: datatrust
+version: "0.1.0"
+config-version: 2
+profile: datatrust
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+# Layers -> DuckDB schemas. generate_schema_name (macros/) uses these names as-is, so
+# marts land in `gold`, not `main_gold`.
+models:
+  datatrust:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: table
+    marts:
+      +schema: gold
+      +materialized: table

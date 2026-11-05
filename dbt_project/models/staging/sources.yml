@@ -1,0 +1,12 @@
+version: 2
+sources:
+  - name: datatrust
+    description: Tables loaded into DuckDB by src/warehouse/warehouse_loader.py.
+    schema: main
+    tables:
+      - name: silver_trips
+        description: Cleaned, de-duplicated taxi trips loaded from the Silver Parquet partitions.
+      - name: quality_results
+        description: Data quality rule results copied from the metadata store.
+      - name: pipeline_runs
+        description: Pipeline run history copied from the metadata store.

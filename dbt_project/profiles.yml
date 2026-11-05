@@ -1,0 +1,9 @@
+# Profile used by `python -m src.cli dbt` (no credentials: DuckDB is a local file).
+# `python -m src.cli dbt` sets DATATRUST_DUCKDB_PATH for you.
+datatrust:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DATATRUST_DUCKDB_PATH', '../data/warehouse/datatrust.duckdb') }}"
+      threads: 1

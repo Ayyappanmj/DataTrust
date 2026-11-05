@@ -1,0 +1,28 @@
+[project]
+name = "datatrust"
+version = "0.1.0"
+description = "DataTrust: a local data lakehouse and data quality platform (PySpark, Parquet, DuckDB, dbt)."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = { text = "MIT" }
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["data", "dbt_project/target", "dbt_project/dbt_packages"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "UP"]
+ignore = ["E501", "B008", "B905"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+markers = [
+    "spark: needs PySpark and a Java runtime",
+    "duckdb: needs DuckDB",
+    "dbt: needs dbt-core and dbt-duckdb",
+    "postgres: needs a reachable PostgreSQL (set DATATRUST_TEST_PG_*)",
+    "dashboard: needs Streamlit",
+]

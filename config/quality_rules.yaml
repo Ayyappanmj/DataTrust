@@ -1,0 +1,12 @@
+# Optional overrides for the built-in data quality rules (see DATA_QUALITY_RULES.md).
+# Allowed keys per rule: severity, action (reject|flag), max_failure_pct, enabled, params.
+rules:
+  total_reconciles:
+    severity: WARNING
+    max_failure_pct: 10
+  passenger_count_valid:
+    params:
+      max_passengers: 9
+  trip_duration_valid:
+    params:
+      max_minutes: 1440

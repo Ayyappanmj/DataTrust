@@ -1,0 +1,164 @@
+{
+  "rows_read": 1112,
+  "malformed_lines": 2,
+  "rejected_validity": 82,
+  "duplicates": 20,
+  "accepted": 1010,
+  "rule_failures": {
+    "trip_distance_valid": 10,
+    "payment_type_known": 10,
+    "pickup_ts_valid": 20,
+    "pickup_before_dropoff": 10,
+    "trip_duration_valid": 20,
+    "pu_location_present": 12,
+    "total_reconciles": 20,
+    "fare_amount_non_negative": 10,
+    "fare_amount_present": 2,
+    "total_amount_present": 2,
+    "do_location_present": 2,
+    "dropoff_ts_valid": 2,
+    "passenger_count_valid": 10
+  },
+  "daily": {
+    "2023-02-01": {
+      "trips": 34,
+      "fare_revenue": 1224.55,
+      "tip_amount": 137.86
+    },
+    "2023-02-02": {
+      "trips": 37,
+      "fare_revenue": 1424.21,
+      "tip_amount": 122.11
+    },
+    "2023-02-03": {
+      "trips": 44,
+      "fare_revenue": 1568.51,
+      "tip_amount": 141.17
+    },
+    "2023-02-04": {
+      "trips": 41,
+      "fare_revenue": 1654.95,
+      "tip_amount": 157.12
+    },
+    "2023-02-05": {
+      "trips": 32,
+      "fare_revenue": 1227.12,
+      "tip_amount": 153.71
+    },
+    "2023-02-06": {
+      "trips": 35,
+      "fare_revenue": 1483.33,
+      "tip_amount": 183.71
+    },
+    "2023-02-07": {
+      "trips": 35,
+      "fare_revenue": 1325.4,
+      "tip_amount": 174.08
+    },
+    "2023-02-08": {
+      "trips": 29,
+      "fare_revenue": 1091.52,
+      "tip_amount": 113.21
+    },
+    "2023-02-09": {
+      "trips": 35,
+      "fare_revenue": 1389.47,
+      "tip_amount": 203.49
+    },
+    "2023-02-10": {
+      "trips": 34,
+      "fare_revenue": 1301.89,
+      "tip_amount": 171.0
+    },
+    "2023-02-11": {
+      "trips": 40,
+      "fare_revenue": 1518.4,
+      "tip_amount": 166.21
+    },
+    "2023-02-12": {
+      "trips": 26,
+      "fare_revenue": 1147.88,
+      "tip_amount": 123.01
+    },
+    "2023-02-13": {
+      "trips": 35,
+      "fare_revenue": 1300.65,
+      "tip_amount": 147.18
+    },
+    "2023-02-14": {
+      "trips": 39,
+      "fare_revenue": 1344.32,
+      "tip_amount": 194.53
+    },
+    "2023-02-15": {
+      "trips": 34,
+      "fare_revenue": 1355.49,
+      "tip_amount": 117.35
+    },
+    "2023-02-16": {
+      "trips": 37,
+      "fare_revenue": 1345.81,
+      "tip_amount": 123.93
+    },
+    "2023-02-17": {
+      "trips": 31,
+      "fare_revenue": 1248.11,
+      "tip_amount": 131.33
+    },
+    "2023-02-18": {
+      "trips": 38,
+      "fare_revenue": 1275.36,
+      "tip_amount": 144.69
+    },
+    "2023-02-19": {
+      "trips": 39,
+      "fare_revenue": 1440.36,
+      "tip_amount": 155.24
+    },
+    "2023-02-20": {
+      "trips": 42,
+      "fare_revenue": 1637.52,
+      "tip_amount": 165.58
+    },
+    "2023-02-21": {
+      "trips": 36,
+      "fare_revenue": 1314.11,
+      "tip_amount": 145.63
+    },
+    "2023-02-22": {
+      "trips": 39,
+      "fare_revenue": 1725.75,
+      "tip_amount": 224.23
+    },
+    "2023-02-23": {
+      "trips": 38,
+      "fare_revenue": 1561.72,
+      "tip_amount": 173.86
+    },
+    "2023-02-24": {
+      "trips": 41,
+      "fare_revenue": 1613.73,
+      "tip_amount": 217.23
+    },
+    "2023-02-25": {
+      "trips": 35,
+      "fare_revenue": 1272.31,
+      "tip_amount": 134.91
+    },
+    "2023-02-26": {
+      "trips": 37,
+      "fare_revenue": 1358.01,
+      "tip_amount": 187.07
+    },
+    "2023-02-27": {
+      "trips": 33,
+      "fare_revenue": 1272.21,
+      "tip_amount": 144.11
+    },
+    "2023-02-28": {
+      "trips": 34,
+      "fare_revenue": 1503.68,
+      "tip_amount": 215.43
+    }
+  }
+}

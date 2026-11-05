@@ -1,0 +1,79 @@
+# Airflow orchestration (LocalExecutor). Needs roughly 6 GB RAM and 8 GB disk for images + Spark.
+#   docker compose -f docker-compose.airflow.yml up airflow-init
+#   docker compose -f docker-compose.airflow.yml up -d
+# UI: http://localhost:8080 (user "admin", password from AIRFLOW_ADMIN_PASSWORD in .env).
+x-airflow-env: &airflow-env
+  AIRFLOW__CORE__EXECUTOR: LocalExecutor
+  AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+  AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY:?set AIRFLOW_FERNET_KEY in .env}
+  AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:${AIRFLOW_DB_PASSWORD:?set AIRFLOW_DB_PASSWORD in .env}@airflow-db/airflow
+  DATATRUST_PROJECT_DIR: /opt/datatrust
+  DATATRUST_PYTHON: /opt/airflow/datatrust-venv/bin/python
+  DATATRUST_DATA_ROOT: /opt/datatrust/data
+  DATATRUST_METADATA_BACKEND: postgres
+  DATATRUST_PG_HOST: datatrust-db
+  DATATRUST_PG_PORT: "5432"
+  DATATRUST_PG_DB: datatrust
+  DATATRUST_PG_USER: datatrust
+  DATATRUST_PG_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+  DATATRUST_SPARK_DRIVER_MEMORY: 2g
+
+x-airflow-common: &airflow-common
+  build: { context: ., dockerfile: docker/Dockerfile.airflow }
+  image: datatrust-airflow:local
+  environment: *airflow-env
+  volumes:
+    - ./dags:/opt/airflow/dags:ro
+    - ./:/opt/datatrust
+  depends_on:
+    airflow-db: { condition: service_healthy }
+    datatrust-db: { condition: service_healthy }
+
+services:
+  airflow-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_DB: airflow
+      POSTGRES_PASSWORD: ${AIRFLOW_DB_PASSWORD:?set AIRFLOW_DB_PASSWORD in .env}
+    volumes: [airflow-db:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
+      interval: 5s
+      retries: 10
+
+  datatrust-db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: datatrust
+      POSTGRES_DB: datatrust
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes: [datatrust-db:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U datatrust -d datatrust"]
+      interval: 5s
+      retries: 10
+
+  airflow-init:
+    <<: *airflow-common
+    command: >
+      bash -c "airflow db migrate &&
+      airflow users create --username admin --firstname Admin --lastname User --role Admin
+      --email admin@example.com --password '${AIRFLOW_ADMIN_PASSWORD:?set AIRFLOW_ADMIN_PASSWORD in .env}' || true"
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: airflow webserver
+    ports: ["127.0.0.1:8080:8080"]
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      retries: 5
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: airflow scheduler
+
+volumes:
+  airflow-db:
+  datatrust-db:

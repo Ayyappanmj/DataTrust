@@ -1,0 +1,72 @@
+version: 2
+models:
+  - name: stg_trips
+    description: Standardised view over Silver trips; one row per accepted trip.
+    columns:
+      - name: record_id
+        description: SHA-256 of the business key (see DATA_DICTIONARY.md).
+        tests: [unique, not_null]
+      - name: pickup_ts
+        tests: [not_null]
+      - name: payment_type
+        tests:
+          - accepted_values:
+              values: [0, 1, 2, 3, 4, 5, 6, 9]
+              quote: false
+              config: {severity: warn}
+  - name: clean_trips
+    description: Trips with business columns (fare_revenue, taxes_and_fees, tip_pct).
+    columns:
+      - name: record_id
+        tests: [unique, not_null]
+      - name: pickup_date
+        tests:
+          - not_null
+          - relationships: {to: ref('daily_trip_metrics'), field: pickup_date}
+      - name: pu_location_id
+        tests:
+          - not_null
+          - relationships: {to: ref('location_metrics'), field: pu_location_id}
+      - name: fare_revenue
+        tests: [not_null]
+  - name: daily_trip_metrics
+    description: Daily trip volume, revenue, fare, duration and tip percentage (card trips only).
+    columns:
+      - name: pickup_date
+        tests: [unique, not_null]
+      - name: trips
+        tests: [not_null]
+  - name: hourly_trip_metrics
+    description: Trips by ISO weekday (1=Mon) and pickup hour.
+    columns:
+      - name: pickup_dow
+        tests:
+          - not_null
+          - accepted_values: {values: [1, 2, 3, 4, 5, 6, 7], quote: false}
+      - name: pickup_hour
+        tests:
+          - accepted_values: {values: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23], quote: false}
+  - name: location_metrics
+    description: Trip volume and revenue by pickup location id.
+    columns:
+      - name: pu_location_id
+        tests: [unique, not_null]
+  - name: payment_type_metrics
+    description: Trip distribution by payment type.
+    columns:
+      - name: payment_type_id
+        tests: [unique, not_null]
+  - name: data_quality_summary
+    description: Latest result and history per quality rule.
+    columns:
+      - name: latest_status
+        tests:
+          - accepted_values: {values: [PASSED, WARN, FAILED]}
+  - name: pipeline_run_summary
+    description: One row per pipeline run with duration and record counts.
+    columns:
+      - name: run_id
+        tests: [unique, not_null]
+      - name: status
+        tests:
+          - accepted_values: {values: [RUNNING, SUCCEEDED, PARTIAL_FAILURE, FAILED]}

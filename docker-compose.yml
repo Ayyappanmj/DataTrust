@@ -1,0 +1,56 @@
+# Lightweight development stack. Nothing starts by default except what you ask for:
+#   docker compose run --rm app python -m src.cli run --input data/sample    (pipeline)
+#   docker compose up dashboard                                              (Streamlit)
+#   docker compose --profile postgres up -d postgres                         (metadata DB)
+# Spark needs ~2-4 GB RAM; give Docker Desktop at least 4 GB.
+services:
+  app:
+    build: { context: ., dockerfile: docker/Dockerfile }
+    image: datatrust:local
+    profiles: ["tools"]
+    environment: &app_env
+      DATATRUST_DATA_ROOT: /app/data
+      DATATRUST_METADATA_BACKEND: ${DATATRUST_METADATA_BACKEND:-sqlite}
+      DATATRUST_PG_HOST: postgres
+      DATATRUST_PG_PORT: "5432"
+      DATATRUST_PG_DB: ${DATATRUST_PG_DB:-datatrust}
+      DATATRUST_PG_USER: ${DATATRUST_PG_USER:-datatrust}
+      DATATRUST_PG_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      DATATRUST_SPARK_DRIVER_MEMORY: ${DATATRUST_SPARK_DRIVER_MEMORY:-2g}
+    volumes:
+      - ./data:/app/data
+
+  dashboard:
+    image: datatrust:local
+    build: { context: ., dockerfile: docker/Dockerfile }
+    command: ["streamlit", "run", "app/dashboard.py", "--server.address=0.0.0.0", "--server.port=8501", "--server.headless=true"]
+    environment: *app_env
+    volumes:
+      - ./data:/app/data:ro
+    ports:
+      - "127.0.0.1:8501:8501"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8501/_stcore/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  postgres:
+    image: postgres:16
+    profiles: ["postgres"]
+    environment:
+      POSTGRES_DB: ${DATATRUST_PG_DB:-datatrust}
+      POSTGRES_USER: ${DATATRUST_PG_USER:-datatrust}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}   # local demo default; set a real one in .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
