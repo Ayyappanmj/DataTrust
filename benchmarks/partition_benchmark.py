@@ -65,7 +65,8 @@ def run_benchmark(settings: Settings, rows: int = 200_000, days: int = 60, repea
                 ROUND(3 + ((i * 13) % 5000) / 100.0, 2) AS fare_amount
             FROM range({rows}) t(i)
         )""")
-    probe_day = conn.execute("SELECT strftime(TIMESTAMP '2023-01-01' + INTERVAL 20 DAY, '%Y-%m-%d')").fetchone()[0]
+    offset = min(20, max(0, days - 1))
+    probe_day = conn.execute(f"SELECT strftime(TIMESTAMP '2023-01-01' + INTERVAL {offset} DAY, '%Y-%m-%d')").fetchone()[0]
     probe_month = probe_day[:7]
     queries = {
         "one_day_filter": (f"SELECT COUNT(*), SUM(fare_amount) FROM {{src}} WHERE pickup_date = '{probe_day}'",

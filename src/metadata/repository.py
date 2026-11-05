@@ -306,7 +306,7 @@ class MetadataRepository:
             FROM lineage_edges e
             JOIN up ON e.output_dataset = up.dataset
             LEFT JOIN ingestion_manifest m ON m.checksum = e.source_checksum
-            WHERE e.status = 'SUCCEEDED' AND (e.source_checksum IS NULL OR m.active = 1)
+            WHERE e.status = 'SUCCEEDED' AND (e.source_checksum IS NULL OR m.active IS NULL OR m.active = 1)
             GROUP BY e.run_id, e.source_dataset, e.source_checksum, e.transformation,
                      e.output_dataset, e.output_record_count, e.processed_at
             ORDER BY MIN(up.depth), e.processed_at

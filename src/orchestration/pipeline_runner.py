@@ -374,27 +374,29 @@ class PipelineRunner:
         checked = missing = unexpected = drift = 0
         active_prints = {r["schema_fingerprint"] for r in self.repo.list_manifest(active_only=True)
                          if r["schema_fingerprint"]}
+        seen_prints = set(active_prints)
         for entry in ctx.entries():
             if entry.skipped or entry.checksum in ctx.failed:
                 continue
             row = self.repo.get_manifest(entry.checksum) or {}
             columns = (ctx.validations.get(entry.checksum, {}).get("columns")
                        or json.loads(row.get("columns_json") or "[]"))
+            fp = schema_fingerprint(columns)
             try:
-                previous = next(iter(active_prints - {schema_fingerprint(columns)}), None) \
-                    if active_prints else None
+                previous = next(iter(seen_prints - {fp}), None) if seen_prints else None
                 result = check_schema(columns, self.settings.unexpected_columns, previous)
             except SchemaValidationError as exc:
                 self._fail_file(ctx, entry, "process", str(exc))
                 missing += 1
                 checked += 1
                 continue
+            seen_prints.add(fp)
             checked += 1
             missing += bool(result.missing_required)
             unexpected += bool(result.unexpected)
             drift += result.drift_from_previous
             for message in result.messages:
-                log.warning("Schema check", extra={"file": Path(entry.path).name, "msg": message})
+                log.warning("Schema check", extra={"file": Path(entry.path).name, "detail": message})
             if not result.ok:
                 self._fail_file(ctx, entry, "process", "; ".join(result.messages))
         if checked:
